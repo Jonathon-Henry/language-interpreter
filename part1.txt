@@ -1,26 +1,29 @@
-1. BNF Grammer 
-	<program> ::= <expr>
+1. BNF Grammar 
+	<program> ::= <expr>+
 	<expr> 	::= <number>
 		::= <identifier> 
-		::= (add1 <expr>)
-		::= (sub1 <expr>)
-		::= (<primitive> <expr> {<expr>}+)
+		::= comp <expr>
+		::= <expr> <primitive> <expr>
 		::= let {<identifier> = <expr>}+(,) in <expr>
 		::= if <expr> then <expr> else <expr>
-		::= function(<identifier>) { {<expr>}+ } 
+		::= fxn( <identifier> ): <expr>+; 
 		::= print <expr>
-	<primitive> ::= + | - | * | /
-	<identifier> ::= [a-zA-Z0-9]+
-	<number> ::= [0-9]+
+	<primitive> ::= + | - | * | / | % | > | < | <= | >=
+	<identifier> ::= [a-zA-Z]+[0-9]*
+	<number> ::= [0-9]+(\.[0-9])*
+
 2. Semantics 
 	- <number> is any real number
-	- add1 and sub1 are also terminal
 	- all primitive values are terminal as well
-	-print takes any expression and returns it as a stirng
+	- print takes any expression and returns it as a stirng and does not compute it
+	- comp returns the largest value given
+ 
 3. Program examples
-	- (+ 2 3 4)
-	- (add1 (+ 2 3) (* 3 3))
-	- (* (* 3 4) (/ 8 2))
-	- (let x=1, y=2 in (+ x y))
-	- (print (add1 (+ 2 4)))
-	- (let x=1 if (1 > 0) then x=2, else x=0)
+	- 1 + 2 
+	- 4 * 4 + 3 + 2 / 3
+	- let x = 2 in x + 2 
+	- print 3 + 2 
+	- let x = 1 if x % 2 == 1 then x = 2
+	-fxn(x): x + 2; 
+	- comp 4 5 
+- 
