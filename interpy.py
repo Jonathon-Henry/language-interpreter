@@ -1,4 +1,4 @@
-# from cfonts import render, say
+from cfonts import render
 import os
 import parser
 import itertools
@@ -58,6 +58,10 @@ def main():
 
 
 if __name__ == '__main__':
-    # output = render('Interpy', colors=['blue', 'red'], align='center')
-    # print(output)
+    output = render('Interpy', font='3d', align='center', gradient=['#D70036', '#002F87'])
+    print(output)
+    print('\nWelcome to Interpy, the interpreter written in python. To find the syntax for Interpy, '
+          'please refer to the grammar.txt file within the repository.\nThis was done by Alex Zoumaya and Jon Henry for'
+          'Dr. Phu Phung\'s CPS352.\n\n'
+          '--help\t\tmenu\n--exit\t\tterminate program\n\n')
     main()
