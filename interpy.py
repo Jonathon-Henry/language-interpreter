@@ -18,7 +18,7 @@ def exec_function(userIn):
     try:
         compile(userIn, '<stdin>', 'eval')
     except SyntaxError:
-        return 
+        return exec
     return eval
     
 
@@ -58,10 +58,10 @@ def main():
 
 
 if __name__ == '__main__':
-    output = render('Interpy', font='3d', align='center', gradient=['#D70036', '#002F87'])
+    output = render('Interpy', font='block', align='left', colors=['yellow', '#f80'])
     print(output)
     print('\nWelcome to Interpy, the interpreter written in python. To find the syntax for Interpy, '
           'please refer to the grammar.txt file within the repository.\nThis was done by Alex Zoumaya and Jon Henry for'
-          'Dr. Phu Phung\'s CPS352.\n\n'
-          '--help\t\tmenu\n--exit\t\tterminate program\n\n')
+          ' Dr. Phu Phung\'s CPS352.\n\n'
+          '\t\t\t--help\t\tmenu\n\t\t\t--exit\t\tterminate program\n\n')
     main()
