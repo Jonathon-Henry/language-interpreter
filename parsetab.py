@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ASSIGN DIVIDE EQUALS EQV GT GTE IDENTIFIER LPAREN LT LTE MINUS MOD NUMBER PLUS PRINT RPAREN SEMICOLON TIMESprogram : expr\n               | emptyempty : assign : IDENTIFIER EQUALS exprexpr : expr PLUS expr\n            | expr MINUS expr\n            | empty\n            | NUMBER'
+_lr_signature = 'leftPLUSMINUSleftTIMESDIVIDEASSIGN DIVIDE EQUALS EQV GT GTE IDENTIFIER LPAREN LT LTE MINUS MOD NUMBER PLUS PRINT RPAREN SEMICOLON TIMESprogram : expr\n               | empty\n               | NUMBERempty : assign : IDENTIFIER EQUALS exprexpr : expr PLUS expr\n            | expr MINUS expr\n            | expr DIVIDE expr\n            | expr TIMES expr\n            | expr MOD exprexpr : LPAREN expr RPARENexpr : NUMBER'
     
-_lr_action_items = {'NUMBER':([0,5,6,],[4,4,4,]),'$end':([0,1,2,3,4,5,6,7,8,9,],[-3,0,-1,-2,-8,-3,-3,-5,-7,-6,]),'PLUS':([0,2,3,4,5,6,7,8,9,],[-3,5,-7,-8,-3,-3,5,-7,5,]),'MINUS':([0,2,3,4,5,6,7,8,9,],[-3,6,-7,-8,-3,-3,6,-7,6,]),}
+_lr_action_items = {'NUMBER':([0,5,6,7,8,9,10,],[4,12,12,12,12,12,12,]),'LPAREN':([0,5,6,7,8,9,10,],[5,5,5,5,5,5,5,]),'$end':([0,1,2,3,4,12,13,14,15,16,17,18,],[-4,0,-1,-2,-3,-12,-6,-7,-8,-9,-10,-11,]),'PLUS':([2,4,11,12,13,14,15,16,17,18,],[6,-12,6,-12,-6,-7,-8,-9,6,-11,]),'MINUS':([2,4,11,12,13,14,15,16,17,18,],[7,-12,7,-12,-6,-7,-8,-9,7,-11,]),'DIVIDE':([2,4,11,12,13,14,15,16,17,18,],[8,-12,8,-12,8,8,-8,-9,8,-11,]),'TIMES':([2,4,11,12,13,14,15,16,17,18,],[9,-12,9,-12,9,9,-8,-9,9,-11,]),'MOD':([2,4,11,12,13,14,15,16,17,18,],[10,-12,10,-12,-6,-7,-8,-9,10,-11,]),'RPAREN':([11,12,13,14,15,16,17,18,],[18,-12,-6,-7,-8,-9,-10,-11,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'program':([0,],[1,]),'expr':([0,5,6,],[2,7,9,]),'empty':([0,5,6,],[3,8,8,]),}
+_lr_goto_items = {'program':([0,],[1,]),'expr':([0,5,6,7,8,9,10,],[2,11,13,14,15,16,17,]),'empty':([0,],[3,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,12 +27,16 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> expr','program',1,'p_program','interpy.py',42),
-  ('program -> empty','program',1,'p_program','interpy.py',43),
-  ('empty -> <empty>','empty',0,'p_empty','interpy.py',47),
-  ('assign -> IDENTIFIER EQUALS expr','assign',3,'p_assign','interpy.py',51),
-  ('expr -> expr PLUS expr','expr',3,'p_expr','interpy.py',55),
-  ('expr -> expr MINUS expr','expr',3,'p_expr','interpy.py',56),
-  ('expr -> empty','expr',1,'p_expr','interpy.py',57),
-  ('expr -> NUMBER','expr',1,'p_expr','interpy.py',58),
+  ('program -> expr','program',1,'p_program','interpy.py',40),
+  ('program -> empty','program',1,'p_program','interpy.py',41),
+  ('program -> NUMBER','program',1,'p_program','interpy.py',42),
+  ('empty -> <empty>','empty',0,'p_empty','interpy.py',46),
+  ('assign -> IDENTIFIER EQUALS expr','assign',3,'p_assign','interpy.py',50),
+  ('expr -> expr PLUS expr','expr',3,'p_expr','interpy.py',54),
+  ('expr -> expr MINUS expr','expr',3,'p_expr','interpy.py',55),
+  ('expr -> expr DIVIDE expr','expr',3,'p_expr','interpy.py',56),
+  ('expr -> expr TIMES expr','expr',3,'p_expr','interpy.py',57),
+  ('expr -> expr MOD expr','expr',3,'p_expr','interpy.py',58),
+  ('expr -> LPAREN expr RPAREN','expr',3,'p_expr_paren','interpy.py',62),
+  ('expr -> NUMBER','expr',1,'p_expr_number','interpy.py',66),
 ]

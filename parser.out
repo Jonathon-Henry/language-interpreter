@@ -3,58 +3,57 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 Unused terminals:
 
     ASSIGN
-    DIVIDE
     EQV
     GT
     GTE
-    LPAREN
     LT
     LTE
-    MOD
     PRINT
-    RPAREN
     SEMICOLON
-    TIMES
 
 Grammar
 
 Rule 0     S' -> program
 Rule 1     program -> expr
 Rule 2     program -> empty
-Rule 3     empty -> <empty>
-Rule 4     assign -> IDENTIFIER EQUALS expr
-Rule 5     expr -> expr PLUS expr
-Rule 6     expr -> expr MINUS expr
-Rule 7     expr -> empty
-Rule 8     expr -> NUMBER
+Rule 3     program -> NUMBER
+Rule 4     empty -> <empty>
+Rule 5     assign -> IDENTIFIER EQUALS expr
+Rule 6     expr -> expr PLUS expr
+Rule 7     expr -> expr MINUS expr
+Rule 8     expr -> expr DIVIDE expr
+Rule 9     expr -> expr TIMES expr
+Rule 10    expr -> expr MOD expr
+Rule 11    expr -> LPAREN expr RPAREN
+Rule 12    expr -> NUMBER
 
 Terminals, with rules where they appear
 
 ASSIGN               : 
-DIVIDE               : 
-EQUALS               : 4
+DIVIDE               : 8
+EQUALS               : 5
 EQV                  : 
 GT                   : 
 GTE                  : 
-IDENTIFIER           : 4
-LPAREN               : 
+IDENTIFIER           : 5
+LPAREN               : 11
 LT                   : 
 LTE                  : 
-MINUS                : 6
-MOD                  : 
-NUMBER               : 8
-PLUS                 : 5
+MINUS                : 7
+MOD                  : 10
+NUMBER               : 3 12
+PLUS                 : 6
 PRINT                : 
-RPAREN               : 
+RPAREN               : 11
 SEMICOLON            : 
-TIMES                : 
+TIMES                : 9
 error                : 
 
 Nonterminals, with rules where they appear
 
 assign               : 
-empty                : 2 7
-expr                 : 1 4 5 5 6 6
+empty                : 2
+expr                 : 1 5 6 6 7 7 8 8 9 9 10 10 11
 program              : 0
 
 Parsing method: LALR
@@ -64,16 +63,19 @@ state 0
     (0) S' -> . program
     (1) program -> . expr
     (2) program -> . empty
-    (5) expr -> . expr PLUS expr
-    (6) expr -> . expr MINUS expr
-    (7) expr -> . empty
-    (8) expr -> . NUMBER
-    (3) empty -> .
+    (3) program -> . NUMBER
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
+    (4) empty -> .
 
     NUMBER          shift and go to state 4
-    $end            reduce using rule 3 (empty -> .)
-    PLUS            reduce using rule 3 (empty -> .)
-    MINUS           reduce using rule 3 (empty -> .)
+    LPAREN          shift and go to state 5
+    $end            reduce using rule 4 (empty -> .)
 
     program                        shift and go to state 1
     expr                           shift and go to state 2
@@ -88,116 +90,313 @@ state 1
 state 2
 
     (1) program -> expr .
-    (5) expr -> expr . PLUS expr
-    (6) expr -> expr . MINUS expr
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
 
     $end            reduce using rule 1 (program -> expr .)
-    PLUS            shift and go to state 5
-    MINUS           shift and go to state 6
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 7
+    DIVIDE          shift and go to state 8
+    TIMES           shift and go to state 9
+    MOD             shift and go to state 10
 
 
 state 3
 
     (2) program -> empty .
-    (7) expr -> empty .
 
-  ! reduce/reduce conflict for $end resolved using rule 2 (program -> empty .)
     $end            reduce using rule 2 (program -> empty .)
-    PLUS            reduce using rule 7 (expr -> empty .)
-    MINUS           reduce using rule 7 (expr -> empty .)
-
-  ! $end            [ reduce using rule 7 (expr -> empty .) ]
 
 
 state 4
 
-    (8) expr -> NUMBER .
+    (3) program -> NUMBER .
+    (12) expr -> NUMBER .
 
-    PLUS            reduce using rule 8 (expr -> NUMBER .)
-    MINUS           reduce using rule 8 (expr -> NUMBER .)
-    $end            reduce using rule 8 (expr -> NUMBER .)
+  ! reduce/reduce conflict for $end resolved using rule 3 (program -> NUMBER .)
+    $end            reduce using rule 3 (program -> NUMBER .)
+    PLUS            reduce using rule 12 (expr -> NUMBER .)
+    MINUS           reduce using rule 12 (expr -> NUMBER .)
+    DIVIDE          reduce using rule 12 (expr -> NUMBER .)
+    TIMES           reduce using rule 12 (expr -> NUMBER .)
+    MOD             reduce using rule 12 (expr -> NUMBER .)
+
+  ! $end            [ reduce using rule 12 (expr -> NUMBER .) ]
 
 
 state 5
 
-    (5) expr -> expr PLUS . expr
-    (5) expr -> . expr PLUS expr
-    (6) expr -> . expr MINUS expr
-    (7) expr -> . empty
-    (8) expr -> . NUMBER
-    (3) empty -> .
+    (11) expr -> LPAREN . expr RPAREN
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
 
-    NUMBER          shift and go to state 4
-    PLUS            reduce using rule 3 (empty -> .)
-    MINUS           reduce using rule 3 (empty -> .)
-    $end            reduce using rule 3 (empty -> .)
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
 
-    expr                           shift and go to state 7
-    empty                          shift and go to state 8
+    expr                           shift and go to state 11
 
 state 6
 
-    (6) expr -> expr MINUS . expr
-    (5) expr -> . expr PLUS expr
-    (6) expr -> . expr MINUS expr
-    (7) expr -> . empty
-    (8) expr -> . NUMBER
-    (3) empty -> .
+    (6) expr -> expr PLUS . expr
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
 
-    NUMBER          shift and go to state 4
-    PLUS            reduce using rule 3 (empty -> .)
-    MINUS           reduce using rule 3 (empty -> .)
-    $end            reduce using rule 3 (empty -> .)
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
 
-    expr                           shift and go to state 9
-    empty                          shift and go to state 8
+    expr                           shift and go to state 13
 
 state 7
 
-    (5) expr -> expr PLUS expr .
-    (5) expr -> expr . PLUS expr
-    (6) expr -> expr . MINUS expr
+    (7) expr -> expr MINUS . expr
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
 
-  ! shift/reduce conflict for PLUS resolved as shift
-  ! shift/reduce conflict for MINUS resolved as shift
-    $end            reduce using rule 5 (expr -> expr PLUS expr .)
-    PLUS            shift and go to state 5
-    MINUS           shift and go to state 6
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
 
-  ! PLUS            [ reduce using rule 5 (expr -> expr PLUS expr .) ]
-  ! MINUS           [ reduce using rule 5 (expr -> expr PLUS expr .) ]
-
+    expr                           shift and go to state 14
 
 state 8
 
-    (7) expr -> empty .
+    (8) expr -> expr DIVIDE . expr
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
 
-    PLUS            reduce using rule 7 (expr -> empty .)
-    MINUS           reduce using rule 7 (expr -> empty .)
-    $end            reduce using rule 7 (expr -> empty .)
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
 
+    expr                           shift and go to state 15
 
 state 9
 
-    (6) expr -> expr MINUS expr .
-    (5) expr -> expr . PLUS expr
-    (6) expr -> expr . MINUS expr
+    (9) expr -> expr TIMES . expr
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
+
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
+
+    expr                           shift and go to state 16
+
+state 10
+
+    (10) expr -> expr MOD . expr
+    (6) expr -> . expr PLUS expr
+    (7) expr -> . expr MINUS expr
+    (8) expr -> . expr DIVIDE expr
+    (9) expr -> . expr TIMES expr
+    (10) expr -> . expr MOD expr
+    (11) expr -> . LPAREN expr RPAREN
+    (12) expr -> . NUMBER
+
+    LPAREN          shift and go to state 5
+    NUMBER          shift and go to state 12
+
+    expr                           shift and go to state 17
+
+state 11
+
+    (11) expr -> LPAREN expr . RPAREN
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
+
+    RPAREN          shift and go to state 18
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 7
+    DIVIDE          shift and go to state 8
+    TIMES           shift and go to state 9
+    MOD             shift and go to state 10
+
+
+state 12
+
+    (12) expr -> NUMBER .
+
+    RPAREN          reduce using rule 12 (expr -> NUMBER .)
+    PLUS            reduce using rule 12 (expr -> NUMBER .)
+    MINUS           reduce using rule 12 (expr -> NUMBER .)
+    DIVIDE          reduce using rule 12 (expr -> NUMBER .)
+    TIMES           reduce using rule 12 (expr -> NUMBER .)
+    MOD             reduce using rule 12 (expr -> NUMBER .)
+    $end            reduce using rule 12 (expr -> NUMBER .)
+
+
+state 13
+
+    (6) expr -> expr PLUS expr .
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
+
+    PLUS            reduce using rule 6 (expr -> expr PLUS expr .)
+    MINUS           reduce using rule 6 (expr -> expr PLUS expr .)
+    MOD             reduce using rule 6 (expr -> expr PLUS expr .)
+    $end            reduce using rule 6 (expr -> expr PLUS expr .)
+    RPAREN          reduce using rule 6 (expr -> expr PLUS expr .)
+    DIVIDE          shift and go to state 8
+    TIMES           shift and go to state 9
+
+  ! DIVIDE          [ reduce using rule 6 (expr -> expr PLUS expr .) ]
+  ! TIMES           [ reduce using rule 6 (expr -> expr PLUS expr .) ]
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 7 ]
+  ! MOD             [ shift and go to state 10 ]
+
+
+state 14
+
+    (7) expr -> expr MINUS expr .
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
+
+    PLUS            reduce using rule 7 (expr -> expr MINUS expr .)
+    MINUS           reduce using rule 7 (expr -> expr MINUS expr .)
+    MOD             reduce using rule 7 (expr -> expr MINUS expr .)
+    $end            reduce using rule 7 (expr -> expr MINUS expr .)
+    RPAREN          reduce using rule 7 (expr -> expr MINUS expr .)
+    DIVIDE          shift and go to state 8
+    TIMES           shift and go to state 9
+
+  ! DIVIDE          [ reduce using rule 7 (expr -> expr MINUS expr .) ]
+  ! TIMES           [ reduce using rule 7 (expr -> expr MINUS expr .) ]
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 7 ]
+  ! MOD             [ shift and go to state 10 ]
+
+
+state 15
+
+    (8) expr -> expr DIVIDE expr .
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
+
+    PLUS            reduce using rule 8 (expr -> expr DIVIDE expr .)
+    MINUS           reduce using rule 8 (expr -> expr DIVIDE expr .)
+    DIVIDE          reduce using rule 8 (expr -> expr DIVIDE expr .)
+    TIMES           reduce using rule 8 (expr -> expr DIVIDE expr .)
+    MOD             reduce using rule 8 (expr -> expr DIVIDE expr .)
+    $end            reduce using rule 8 (expr -> expr DIVIDE expr .)
+    RPAREN          reduce using rule 8 (expr -> expr DIVIDE expr .)
+
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 7 ]
+  ! DIVIDE          [ shift and go to state 8 ]
+  ! TIMES           [ shift and go to state 9 ]
+  ! MOD             [ shift and go to state 10 ]
+
+
+state 16
+
+    (9) expr -> expr TIMES expr .
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
+
+    PLUS            reduce using rule 9 (expr -> expr TIMES expr .)
+    MINUS           reduce using rule 9 (expr -> expr TIMES expr .)
+    DIVIDE          reduce using rule 9 (expr -> expr TIMES expr .)
+    TIMES           reduce using rule 9 (expr -> expr TIMES expr .)
+    MOD             reduce using rule 9 (expr -> expr TIMES expr .)
+    $end            reduce using rule 9 (expr -> expr TIMES expr .)
+    RPAREN          reduce using rule 9 (expr -> expr TIMES expr .)
+
+  ! PLUS            [ shift and go to state 6 ]
+  ! MINUS           [ shift and go to state 7 ]
+  ! DIVIDE          [ shift and go to state 8 ]
+  ! TIMES           [ shift and go to state 9 ]
+  ! MOD             [ shift and go to state 10 ]
+
+
+state 17
+
+    (10) expr -> expr MOD expr .
+    (6) expr -> expr . PLUS expr
+    (7) expr -> expr . MINUS expr
+    (8) expr -> expr . DIVIDE expr
+    (9) expr -> expr . TIMES expr
+    (10) expr -> expr . MOD expr
 
   ! shift/reduce conflict for PLUS resolved as shift
   ! shift/reduce conflict for MINUS resolved as shift
-    $end            reduce using rule 6 (expr -> expr MINUS expr .)
-    PLUS            shift and go to state 5
-    MINUS           shift and go to state 6
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for TIMES resolved as shift
+  ! shift/reduce conflict for MOD resolved as shift
+    $end            reduce using rule 10 (expr -> expr MOD expr .)
+    RPAREN          reduce using rule 10 (expr -> expr MOD expr .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 7
+    DIVIDE          shift and go to state 8
+    TIMES           shift and go to state 9
+    MOD             shift and go to state 10
 
-  ! PLUS            [ reduce using rule 6 (expr -> expr MINUS expr .) ]
-  ! MINUS           [ reduce using rule 6 (expr -> expr MINUS expr .) ]
+  ! PLUS            [ reduce using rule 10 (expr -> expr MOD expr .) ]
+  ! MINUS           [ reduce using rule 10 (expr -> expr MOD expr .) ]
+  ! DIVIDE          [ reduce using rule 10 (expr -> expr MOD expr .) ]
+  ! TIMES           [ reduce using rule 10 (expr -> expr MOD expr .) ]
+  ! MOD             [ reduce using rule 10 (expr -> expr MOD expr .) ]
+
+
+state 18
+
+    (11) expr -> LPAREN expr RPAREN .
+
+    PLUS            reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    MINUS           reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    DIVIDE          reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    TIMES           reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    MOD             reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    $end            reduce using rule 11 (expr -> LPAREN expr RPAREN .)
+    RPAREN          reduce using rule 11 (expr -> LPAREN expr RPAREN .)
 
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for PLUS in state 7 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 7 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 9 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 9 resolved as shift
-WARNING: reduce/reduce conflict in state 3 resolved using rule (program -> empty)
-WARNING: rejected rule (expr -> empty) in state 3
+WARNING: shift/reduce conflict for PLUS in state 17 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 17 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 17 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 17 resolved as shift
+WARNING: shift/reduce conflict for MOD in state 17 resolved as shift
+WARNING: reduce/reduce conflict in state 4 resolved using rule (program -> NUMBER)
+WARNING: rejected rule (expr -> NUMBER) in state 4

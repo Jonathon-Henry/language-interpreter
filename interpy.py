@@ -1,9 +1,8 @@
 # from cfonts import render
+import sys
 import itertools
-import ply
 import ply.yacc as yacc
 import ply.lex as lex
-
 
 tokens = ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
           'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN', 'PRINT',
@@ -37,10 +36,10 @@ def t_error(t):
     print("Illegal token: {0}".format(t))
     t.lexer.skip(1)
 
-
 def p_program(p):
     '''program : expr
-               | empty'''
+               | empty
+               | NUMBER'''
     print(p[1])
 
 def p_empty(p):
@@ -56,10 +55,24 @@ def p_expr(p):
             | expr MINUS expr
             | expr DIVIDE expr
             | expr TIMES expr
-            | expr MOD expr
-            | empty
-            | NUMBER'''
-    p[0] = p[1] #(p[2], p[1], p[3])
+            | expr MOD expr'''
+    p[0] = (p[2], p[1], p[3])
+
+def p_expr_paren(p):
+    '''expr : LPAREN expr RPAREN'''
+    p[0] = p[2]
+
+def p_expr_number(p):
+    '''expr : NUMBER'''
+    p[0] = p[1]
+
+def p_error(p):
+    sys.stderr.write('Syntax Error')
+
+precedence = (
+     ('left', 'PLUS', 'MINUS'),
+     ('left', 'TIMES', 'DIVIDE'),
+ )
 
 # Code to get all input/exec values
 
@@ -73,6 +86,9 @@ def getInput():
             break
 
 def exec_function(userIn):
+
+    if compare(userIn)[0]:
+        return "Min value: {0}, Max value: {1}".format(compare(userIn)[1], compare(userIn)[2])
     try:
         compile(userIn, '<stdin>', 'eval')
     except SyntaxError:
@@ -89,6 +105,19 @@ def exec_input(i, userIn):
             print(result)
     return None
 
+def compare(input):
+    min = input[0]
+    max = input[-1]
+    try:
+        for x in range(len(input)):
+            if min > input[x]:
+                min = input[x]
+            if max > input[x]:
+                max = input[x]
+        return True, min, max
+    except:
+        return False, 0, 0
+
 def main():
     parser = yacc.yacc()
     lexer = lex.lex()
@@ -101,7 +130,7 @@ def main():
             if not tok:
                 break
             print(tok)
-            parser.parse(userIn)
+        parser.parse(userIn)
         pass
 
 if __name__ == '__main__':
