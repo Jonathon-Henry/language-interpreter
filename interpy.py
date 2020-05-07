@@ -4,9 +4,10 @@ import itertools
 import ply.yacc as yacc
 import ply.lex as lex
 
+
 tokens = ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
           'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN', 'PRINT',
-          'ASSIGN', 'EQV', 'LT', 'GT', 'LTE', 'GTE',
+          'ASSIGN', 'EQV', 'LT', 'GT',
           'SEMICOLON', 'MOD']
 
 t_ignore = r" "
@@ -18,14 +19,13 @@ t_EQUALS = r"\="
 t_IDENTIFIER = r"[a-zA-Z]+[0-9]*"
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
-t_PRINT = r"print"
+t_PRINT = r"\bprint\b"
 t_EQV = r"=="
 t_LT = r"\<"
 t_GT = r"\>"
-t_LTE = r"<="
-t_GTE = r">="
 t_SEMICOLON = r"\;"
 t_MOD = r"\%"
+
 
 def t_NUMBER(t):
     r'\d+'
@@ -39,23 +39,27 @@ def t_error(t):
 def p_program(p):
     '''program : expr
                | empty
-               | NUMBER'''
-    print(p[1])
+               | assign'''
+    print(run(p[1]))
 
 def p_empty(p):
     '''empty : '''
     p[0] = None
 
 def p_assign(p):
-    '''assign : IDENTIFIER EQUALS expr'''
-    p[0] = p[1]
+    '''assign : IDENTIFIER EQUALS expr
+              | IDENTIFIER EQUALS IDENTIFIER'''
+    p[0] = ('=', p[1], p[3])
 
 def p_expr(p):
     '''expr : expr PLUS expr
             | expr MINUS expr
             | expr DIVIDE expr
             | expr TIMES expr
-            | expr MOD expr'''
+            | expr MOD expr
+            | expr LT expr
+            | expr GT expr
+            | expr EQV expr'''
     p[0] = (p[2], p[1], p[3])
 
 def p_expr_paren(p):
@@ -66,6 +70,14 @@ def p_expr_number(p):
     '''expr : NUMBER'''
     p[0] = p[1]
 
+def p_expr_identifier(p):
+    '''expr : IDENTIFIER'''
+    p[0] = ('IDENTIFIER', p[1])
+
+def p_expr_print(p):
+    '''expr : PRINT expr'''
+    p[0] = p[1]
+
 def p_error(p):
     sys.stderr.write('Syntax Error')
 
@@ -74,6 +86,36 @@ precedence = (
      ('left', 'TIMES', 'DIVIDE'),
  )
 
+env = {}
+
+def run(p):
+    global env
+    if type(p) is tuple:
+        if p[0] is '+':
+            return run(p[1]) + run(p[2])
+        elif p[0] is '-':
+            return run(p[1]) - run(p[2])
+        elif p[0] is '/':
+            return run(p[1]) / run(p[2])
+        elif p[0] is '*':
+            return run(p[1]) * run(p[2])
+        elif p[0] is '%':
+            return run(p[1]) % run(p[2])
+        elif p[0] is '<':
+            return run(p[1]) < run(p[2])
+        elif p[0] is '>':
+            return run(p[1]) > run(p[2])
+        elif p[0] is '==':
+            return run(p[1]) is run(p[2])
+        elif p[0] is '=':
+            env[p[1]] = run(p[2])
+            print(env)
+        elif p[0] is 'IDENTIFIER':
+            if p[1] not in env:
+                return "Undeclared Variable Found!"
+            return env[p[1]]
+    else:
+        return p
 # Code to get all input/exec values
 
 def getInput():
@@ -85,25 +127,6 @@ def getInput():
         except EOFError:
             break
 
-def exec_function(userIn):
-
-    if compare(userIn)[0]:
-        return "Min value: {0}, Max value: {1}".format(compare(userIn)[1], compare(userIn)[2])
-    try:
-        compile(userIn, '<stdin>', 'eval')
-    except SyntaxError:
-        return exec
-    return eval
-
-def exec_input(i, userIn):
-    try:
-        result = exec_function(userIn)(userIn)
-    except Exception as e:
-        print("Error: {0}".format(e))
-    else:
-        if result is not None:
-            print(result)
-    return None
 
 def compare(input):
     min = input[0]
@@ -123,15 +146,15 @@ def main():
     lexer = lex.lex()
 
     for i, userIn in getInput():
-        # user_globals = exec_input(i, userIn)
+        if userIn == "--exit":
+            exit(0)
         lexer.input(userIn)
         while True:
             tok = lexer.token()
             if not tok:
                 break
-            print(tok)
+            # print(tok)
         parser.parse(userIn)
-        pass
 
 if __name__ == '__main__':
     # output = render('Interpy', font='block', align='left', colors=['yellow', '#f80'])
@@ -139,5 +162,5 @@ if __name__ == '__main__':
     print('\nWelcome to Interpy, the interpreter written in python. To find the syntax for Interpy, '
           'please refer to the grammar.txt file within the repository.\nThis was done by Alex Zoumaya and Jon Henry for'
           ' Dr. Phu Phung\'s CPS352.\n\n'
-          '\t\t\t--help\t\tmenu\n\t\t\t--exit\t\tterminate program\n\n')
+          '\t\t\t--exit\t\tterminate program\n\n')
     main()
