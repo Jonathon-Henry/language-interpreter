@@ -4,10 +4,10 @@ import itertools
 import ply.yacc as yacc
 import ply.lex as lex
 
-
-tokens = ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
-          'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN', 'PRINT',
-          'ASSIGN', 'EQV', 'LT', 'GT',
+keywords = ['IF', 'THEN', 'ELSE', 'LET', 'PRINT']
+tokens = keywords + ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
+          'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN',
+          'ASSIGN', 'EQV', 'LT', 'GT', 'FLOAT' ,
           'SEMICOLON', 'MOD']
 
 t_ignore = r" "
@@ -15,22 +15,31 @@ t_PLUS = r"\+"
 t_MINUS = r"\-"
 t_TIMES = r"\*"
 t_DIVIDE = r"\/"
+t_EQV = r"=="
 t_EQUALS = r"\="
-t_IDENTIFIER = r"[a-zA-Z]+[0-9]*"
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
-t_PRINT = r"\bprint\b"
-t_EQV = r"=="
 t_LT = r"\<"
 t_GT = r"\>"
 t_SEMICOLON = r"\;"
 t_MOD = r"\%"
 
+def t_IDENTIFIER(t):
+    r"[a-zA-Z_][a-zA-Z_0-9]*"
+    if t.value in keywords:
+        t.type = t.value
+    return t
+
+def t_FLOAT(t):
+    r'\d+\.\d+'
+    t.value = float(t.value)
+    return t
 
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
+
 
 def t_error(t):
     print("Illegal token: {0}".format(t))
@@ -47,8 +56,7 @@ def p_empty(p):
     p[0] = None
 
 def p_assign(p):
-    '''assign : IDENTIFIER EQUALS expr
-              | IDENTIFIER EQUALS IDENTIFIER'''
+    '''assign : IDENTIFIER EQUALS expr'''
     p[0] = ('=', p[1], p[3])
 
 def p_expr(p):
@@ -66,29 +74,37 @@ def p_expr_paren(p):
     '''expr : LPAREN expr RPAREN'''
     p[0] = p[2]
 
+def p_expr_float(p):
+    '''expr : FLOAT'''
+    p[0] = p[1]
+
 def p_expr_number(p):
     '''expr : NUMBER'''
     p[0] = p[1]
+
+def p_expr_print(p):
+    '''expr : PRINT expr'''
+    p[0] = p[2]
 
 def p_expr_identifier(p):
     '''expr : IDENTIFIER'''
     p[0] = ('IDENTIFIER', p[1])
 
-def p_expr_print(p):
-    '''expr : PRINT expr'''
-    p[0] = p[1]
 
 def p_error(p):
     sys.stderr.write('Syntax Error')
 
 precedence = (
+     ('left', 'LT', 'GT', 'EQV'),
      ('left', 'PLUS', 'MINUS'),
-     ('left', 'TIMES', 'DIVIDE'),
+     ('left', 'TIMES', 'DIVIDE', 'MOD'),
+     ('left', 'LPAREN')
  )
 
 env = {}
 
 def run(p):
+    print(p)
     global env
     if type(p) is tuple:
         if p[0] is '+':
@@ -114,6 +130,7 @@ def run(p):
             if p[1] not in env:
                 return "Undeclared Variable Found!"
             return env[p[1]]
+
     else:
         return p
 # Code to get all input/exec values
@@ -153,7 +170,7 @@ def main():
             tok = lexer.token()
             if not tok:
                 break
-            # print(tok)
+            #print(tok)
         parser.parse(userIn)
 
 if __name__ == '__main__':
