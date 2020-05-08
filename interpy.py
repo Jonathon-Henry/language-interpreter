@@ -279,7 +279,7 @@ def main():
             tok = lexer.token()
             if not tok:
                 break
-            print(tok)
+            #print(tok)
         parser.parse(userIn)
 
 if __name__ == '__main__':
