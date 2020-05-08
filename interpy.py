@@ -107,7 +107,11 @@ def p_using(p):
 
     p[0] = ('USING', expressions, p[4]) #Returns ('USING', values for function, function id)
 
-
+def p_if_expression(p):
+    '''
+    expr : IF expr THEN expr ELSE expr
+    '''
+    p[0] = ('IF', p[2], p[4], p[6])
 
 def p_expr(p):
     '''expr : expr PLUS expr
@@ -180,6 +184,15 @@ def run(p, env=env):
             if p[1] not in env:
                 return "Undeclared Variable Found!"
             return env[p[1]]
+        elif p[0] is 'IF':
+            condition = p[1]
+            t = p[2]
+            e = p[3]
+
+            if run(condition):
+                return run(t)
+            else:
+                return run(e)
         elif p[0] is 'USING':
             if p[2] not in env or type(env[p[2]]) is not tuple or env[p[2]][0] != 'READYFUNCTION':
                  return "Function does not exist!"
