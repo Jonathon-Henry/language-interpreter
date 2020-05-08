@@ -1,0 +1,28 @@
+1. BNF Grammar 
+	<program> ::= <expr>+
+	<expr> 	::= <number>
+		::= <identifier> 
+		::= COMPARE <number> <number> <number>
+		::= <expr> <primitive> <expr>
+		::= LET <identifier> = <expr>
+		::= IF <expr> THEN <expr> ELSE <expr>
+		::= LET <identifier> = FXN( <identifier>+ ) [<expr>+]; 
+		::= PRINT <identifier>
+	<primitive> ::= + | - | * | / | % | > | < | ==
+	<identifier> ::= [a-zA-Z][a-zA-Z0-9]*
+	<number> ::= [0-9]+(\.[0-9])*
+
+2. Semantics 
+	- <number> is any real number
+	- all primitive values are terminal as well
+	- print takes any expression and returns it as a stirng and does not compute it
+	- comp returns the largest value given
+ 
+3. Program examples
+	- 1 + 2 
+	- 4 * 4 + 3 + 2 / 3
+	- LET x = 2  
+	- PRINT hello 
+	- IF x > 4 THEN PRINT hello else PRINT goodbye
+	- LET f = FXN(num1) [num1 * num1]; 
+	- COMPARE 3 4 5 

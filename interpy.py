@@ -4,7 +4,7 @@ import itertools
 import ply.yacc as yacc
 import ply.lex as lex
 
-keywords = ['IF', 'THEN', 'ELSE', 'LET', 'PRINT', 'FXN', 'USING', 'IN']
+keywords = ['IF', 'THEN', 'ELSE', 'LET', 'PRINT', 'FXN', 'USING', 'IN', 'COMPARE']
 tokens = keywords + ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
           'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN',
           'ASSIGN', 'EQV', 'LT', 'GT', 'FLOAT' ,
@@ -26,7 +26,7 @@ t_MOD = r"\%"
 t_COMMA = r","
 t_LBRACKET = r"\["
 t_RBRACKET = r"\]"
-t_STRING = r"\"\w*\""
+t_STRING = r"/.*\S.*/"
 
 def t_IDENTIFIER(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
@@ -53,7 +53,8 @@ def p_program(p):
     '''program : expr
                | empty
                | assign'''
-    print(run(p[1]))
+    if run(p[1]) is not None:
+        print(run(p[1]))
 
 def p_empty(p):
     '''empty : '''
@@ -143,12 +144,18 @@ def p_expr_uminus(p):
     p[0] = -p[2]
 
 def p_expr_print(p):
-    '''expr : PRINT STRING'''
+    '''expr : PRINT STRING
+            | PRINT IDENTIFIER
+            | PRINT expr'''
     p[0] = ('PRINT', p[2])
 
 def p_expr_identifier(p):
     '''expr : IDENTIFIER'''
     p[0] = ('IDENTIFIER', p[1])
+
+def p_expr_compare(p):
+    '''expr : COMPARE NUMBER NUMBER NUMBER'''
+    p[0] = ('COMPARE', p[2], p[3], p[4])
 
 
 def p_error(p):
@@ -167,67 +174,72 @@ env = {}
 def run(p, env=env):
     #print(p)
     #global env
-    if type(p) is tuple:
-        if p[0] is '+':
-            return run(p[1], env) + run(p[2], env)
-        elif p[0] is '-':
-            return run(p[1], env) - run(p[2], env)
-        elif p[0] is '/':
-            return run(p[1], env) / run(p[2], env)
-        elif p[0] is '*':
-            return run(p[1], env) * run(p[2],env)
-        elif p[0] is '%':
-            return run(p[1],env) % run(p[2],env)
-        elif p[0] is '<':
-            return run(p[1],env) < run(p[2],env)
-        elif p[0] is '>':
-            return run(p[1],env) > run(p[2],env)
-        elif p[0] is '==':
-            return run(p[1],env) is run(p[2],env)
-        elif p[0] is '=':
-            env[p[1]] = run(p[2],env)
-            #print(env)
-        elif p[0] is 'IDENTIFIER':
-            if p[1] not in env:
-                return "Undeclared Variable Found!"
-            return env[p[1]]
-        elif p[0] is 'IF':
-            condition = p[1]
-            t = p[2]
-            e = p[3]
+    try:
+        if type(p) is tuple:
+            if p[0] is '+':
+                return run(p[1], env) + run(p[2], env)
+            elif p[0] is '-':
+                return run(p[1], env) - run(p[2], env)
+            elif p[0] is '/':
+                return run(p[1], env) / run(p[2], env)
+            elif p[0] is '*':
+                return run(p[1], env) * run(p[2],env)
+            elif p[0] is '%':
+                return run(p[1],env) % run(p[2],env)
+            elif p[0] is '<':
+                return run(p[1],env) < run(p[2],env)
+            elif p[0] is '>':
+                return run(p[1],env) > run(p[2],env)
+            elif p[0] is '==':
+                return run(p[1],env) is run(p[2],env)
+            elif p[0] is '=':
+                env[p[1]] = run(p[2], env)
+                #print(env)
+            elif p[0] is 'IDENTIFIER':
+                if p[1] not in env:
+                    return "Undeclared Variable Found!"
+                return env[p[1]]
+            elif p[0] is 'PRINT':
+                return str(p[1])
+            elif p[0] is 'COMPARE':
+                return "Min: {0} Max: {1}".format(compare(p[1], p[2], p[3])[0], compare(p[1], p[2], p[3])[1])
+            elif p[0] is 'IF':
+                condition = p[1]
+                t = p[2]
+                e = p[3]
 
-            if run(condition):
-                return run(t)
-            else:
-                return run(e)
-        elif p[0] is 'USING':
-            if p[2] not in env or type(env[p[2]]) is not tuple or env[p[2]][0] != 'READYFUNCTION':
-                 return "Function does not exist!"
+                if run(condition):
+                    return run(t)
+                else:
+                    return run(e)
+            elif p[0] is 'USING':
+                if p[2] not in env or type(env[p[2]]) is not tuple or env[p[2]][0] != 'READYFUNCTION':
+                     return "Function does not exist!"
 
-            function = env[p[2]]
-            if len(p[1]) != len(function[1]):
-                return "Invalid number of identifiers given for function!"
+                function = env[p[2]]
+                if len(p[1]) != len(function[1]):
+                    return "Invalid number of identifiers given for function!"
 
-            localenv = {}
-            listofvalues = p[1]
-            listofidentifiers = function[1]
-            for i in range(len(listofvalues)):
-                localenv[listofidentifiers[i]] = listofvalues[i]
+                localenv = {}
+                listofvalues = p[1]
+                listofidentifiers = function[1]
+                for i in range(len(listofvalues)):
+                    localenv[listofidentifiers[i]] = listofvalues[i]
 
-            return run(function[2], localenv)
+                return run(function[2], localenv)
 
-        elif p[0] is 'FUNCTION':
-            list = p[2]
-            expression = p[3]
+            elif p[0] is 'FUNCTION':
+                list = p[2]
+                expression = p[3]
 
-            list = functionHelper(list, id='LOI')
+                list = functionHelper(list, id='LOI')
 
-            #"creates" a function with identifiers and the function's expression and binds it in the dictionary
-            env[p[1]] = ('READYFUNCTION', list, expression)
-
-
-    else:
-        return p
+                #"creates" a function with identifiers and the function's expression and binds it in the dictionary
+                env[p[1]] = ('READYFUNCTION', list, expression)
+        else:
+            return p
+    except TypeError:
+        return 'Error Detected!'
 # Code to get all input/exec values
 
 #Helps parse data in list of expression or list of identifiers
@@ -254,18 +266,16 @@ def getInput():
             break
 
 
-def compare(input):
-    min = input[0]
-    max = input[-1]
-    try:
-        for x in range(len(input)):
-            if min > input[x]:
-                min = input[x]
-            if max > input[x]:
-                max = input[x]
-        return True, min, max
-    except:
-        return False, 0, 0
+def compare(x, y, z):
+    list = [x, y, z]
+    min = list[0]
+    max = list[-1]
+    for x in range(len(list)):
+        if min > list[x]:
+            min = list[x]
+        if max < list[x]:
+            max = list[x]
+    return min, max
 
 def main():
     parser = yacc.yacc()
@@ -279,7 +289,7 @@ def main():
             tok = lexer.token()
             if not tok:
                 break
-            #print(tok)
+            # print(tok)
         parser.parse(userIn)
 
 if __name__ == '__main__':
@@ -288,5 +298,5 @@ if __name__ == '__main__':
     print('\nWelcome to Interpy, the interpreter written in python. To find the syntax for Interpy, '
           'please refer to the grammar.txt file within the repository.\nThis was done by Alex Zoumaya and Jon Henry for'
           ' Dr. Phu Phung\'s CPS352.\n\n'
-          '\t\t\t--exit\t\tterminate program\n\n')
+          '\t\t\t--exit\t\tTerminate program\n\n')
     main()

@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftPLUSMINUSleftTIMESDIVIDEASSIGN DIVIDE EQUALS EQV GT IDENTIFIER LPAREN LT MINUS MOD NUMBER PLUS PRINT RPAREN SEMICOLON TIMESprogram : expr\n               | empty\n               | assignempty : assign : IDENTIFIER EQUALS expr\n              | IDENTIFIER EQUALS IDENTIFIERexpr : expr PLUS expr\n            | expr MINUS expr\n            | expr DIVIDE expr\n            | expr TIMES expr\n            | expr MOD expr\n            | expr LT expr\n            | expr GT expr\n            | expr EQV exprexpr : LPAREN expr RPARENexpr : NUMBERexpr : IDENTIFIERexpr : PRINT expr'
+_lr_signature = 'rightPRINTnonassocLTGTEQVleftPLUSMINUSleftTIMESDIVIDEMODrightUMINUSASSIGN COMMA COMPARE DIVIDE ELSE EQUALS EQV FLOAT FXN GT IDENTIFIER IF IN LBRACKET LET LPAREN LT MINUS MOD NUMBER PLUS PRINT RBRACKET RPAREN SEMICOLON STRING THEN TIMES USINGprogram : expr\n               | empty\n               | assignempty : assign : LET IDENTIFIER EQUALS exprassign : LET IDENTIFIER EQUALS FXN LPAREN listofidentifiers RPAREN LBRACKET expr RBRACKET SEMICOLON\n    listofidentifiers : IDENTIFIER COMMA listofidentifiers\n                      | IDENTIFIER\n    \n    listofexpr : expr SEMICOLON listofexpr\n               | expr\n    \n    expr : USING listofexpr IN IDENTIFIER\n    \n    expr : IF expr THEN expr ELSE expr\n    expr : expr PLUS expr\n            | expr MINUS expr\n            | expr DIVIDE expr\n            | expr TIMES expr\n            | expr MOD expr\n            | expr LT expr\n            | expr GT expr\n            | expr EQV exprexpr : LPAREN expr RPARENexpr : FLOATexpr : NUMBER\n    expr : MINUS expr %prec UMINUS\n    expr : PRINT STRING\n            | PRINT IDENTIFIER\n            | PRINT exprexpr : IDENTIFIERexpr : COMPARE NUMBER NUMBER NUMBER'
     
-_lr_action_items = {'LPAREN':([0,5,8,9,10,11,12,13,14,15,16,19,],[5,5,5,5,5,5,5,5,5,5,5,5,]),'NUMBER':([0,5,8,9,10,11,12,13,14,15,16,19,],[6,6,6,6,6,6,6,6,6,6,6,6,]),'IDENTIFIER':([0,5,8,9,10,11,12,13,14,15,16,19,],[7,18,18,18,18,18,18,18,18,18,18,30,]),'PRINT':([0,5,8,9,10,11,12,13,14,15,16,19,],[8,8,8,8,8,8,8,8,8,8,8,8,]),'$end':([0,1,2,3,4,6,7,18,20,21,22,23,24,25,26,27,28,29,30,31,],[-4,0,-1,-2,-3,-16,-17,-17,-18,-7,-8,-9,-10,-11,-12,-13,-14,-15,-6,-5,]),'PLUS':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[9,-16,-17,9,-17,9,-7,-8,-9,-10,9,9,9,9,-15,-17,9,]),'MINUS':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[10,-16,-17,10,-17,10,-7,-8,-9,-10,10,10,10,10,-15,-17,10,]),'DIVIDE':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[11,-16,-17,11,-17,11,11,11,-9,-10,11,11,11,11,-15,-17,11,]),'TIMES':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[12,-16,-17,12,-17,12,12,12,-9,-10,12,12,12,12,-15,-17,12,]),'MOD':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[13,-16,-17,13,-17,13,-7,-8,-9,-10,13,13,13,13,-15,-17,13,]),'LT':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[14,-16,-17,14,-17,14,-7,-8,-9,-10,14,14,14,14,-15,-17,14,]),'GT':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[15,-16,-17,15,-17,15,-7,-8,-9,-10,15,15,15,15,-15,-17,15,]),'EQV':([2,6,7,17,18,20,21,22,23,24,25,26,27,28,29,30,31,],[16,-16,-17,16,-17,16,-7,-8,-9,-10,16,16,16,16,-15,-17,16,]),'RPAREN':([6,17,18,20,21,22,23,24,25,26,27,28,29,],[-16,29,-17,-18,-7,-8,-9,-10,-11,-12,-13,-14,-15,]),'EQUALS':([7,],[19,]),}
+_lr_action_items = {'USING':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,]),'IF':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,]),'LPAREN':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,52,53,61,],[9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,54,9,9,]),'FLOAT':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,]),'NUMBER':([0,5,7,8,9,12,13,15,16,17,18,19,20,21,22,31,42,43,45,46,53,61,],[11,11,11,11,11,11,31,11,11,11,11,11,11,11,11,45,11,11,50,11,11,11,]),'MINUS':([0,2,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,42,43,44,46,47,49,50,51,53,55,61,62,],[8,16,8,-28,8,8,8,-22,-23,8,8,8,8,8,8,8,8,8,16,16,-24,16,-25,-26,16,-13,-14,-15,-16,-17,16,16,16,8,8,-21,8,-11,16,-29,16,8,16,8,16,]),'PRINT':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,]),'IDENTIFIER':([0,5,7,8,9,12,14,15,16,17,18,19,20,21,22,41,42,43,46,53,54,58,61,],[6,6,6,6,6,29,32,6,6,6,6,6,6,6,6,47,6,6,6,6,56,56,6,]),'COMPARE':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,]),'$end':([0,1,2,3,4,6,10,11,26,28,29,30,33,34,35,36,37,38,39,40,44,47,50,51,55,64,],[-4,0,-1,-2,-3,-28,-22,-23,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-29,-5,-12,-6,]),'LET':([0,],[14,]),'PLUS':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[15,-28,-22,-23,15,15,-24,15,-25,-26,15,-13,-14,-15,-16,-17,15,15,15,-21,-11,15,-29,15,15,15,]),'DIVIDE':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[17,-28,-22,-23,17,17,-24,17,-25,-26,17,17,17,-15,-16,-17,17,17,17,-21,-11,17,-29,17,17,17,]),'TIMES':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[18,-28,-22,-23,18,18,-24,18,-25,-26,18,18,18,-15,-16,-17,18,18,18,-21,-11,18,-29,18,18,18,]),'MOD':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[19,-28,-22,-23,19,19,-24,19,-25,-26,19,19,19,-15,-16,-17,19,19,19,-21,-11,19,-29,19,19,19,]),'LT':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[20,-28,-22,-23,20,20,-24,20,-25,-26,20,-13,-14,-15,-16,-17,None,None,None,-21,-11,20,-29,20,20,20,]),'GT':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[21,-28,-22,-23,21,21,-24,21,-25,-26,21,-13,-14,-15,-16,-17,None,None,None,-21,-11,21,-29,21,21,21,]),'EQV':([2,6,10,11,24,25,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,51,55,62,],[22,-28,-22,-23,22,22,-24,22,-25,-26,22,-13,-14,-15,-16,-17,None,None,None,-21,-11,22,-29,22,22,22,]),'SEMICOLON':([6,10,11,24,26,28,29,30,33,34,35,36,37,38,39,40,44,47,50,55,63,],[-28,-22,-23,42,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-29,-12,64,]),'IN':([6,10,11,23,24,26,28,29,30,33,34,35,36,37,38,39,40,44,47,48,50,55,],[-28,-22,-23,41,-10,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-9,-29,-12,]),'THEN':([6,10,11,25,26,28,29,30,33,34,35,36,37,38,39,40,44,47,50,55,],[-28,-22,-23,43,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-29,-12,]),'RPAREN':([6,10,11,26,27,28,29,30,33,34,35,36,37,38,39,40,44,47,50,55,56,57,60,],[-28,-22,-23,-24,44,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-29,-12,-8,59,-7,]),'ELSE':([6,10,11,26,28,29,30,33,34,35,36,37,38,39,40,44,47,49,50,55,],[-28,-22,-23,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,53,-29,-12,]),'RBRACKET':([6,10,11,26,28,29,30,33,34,35,36,37,38,39,40,44,47,50,55,62,],[-28,-22,-23,-24,-25,-26,-27,-13,-14,-15,-16,-17,-18,-19,-20,-21,-11,-29,-12,63,]),'STRING':([12,],[28,]),'EQUALS':([32,],[46,]),'FXN':([46,],[52,]),'COMMA':([56,],[58,]),'LBRACKET':([59,],[61,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'program':([0,],[1,]),'expr':([0,5,8,9,10,11,12,13,14,15,16,19,],[2,17,20,21,22,23,24,25,26,27,28,31,]),'empty':([0,],[3,]),'assign':([0,],[4,]),}
+_lr_goto_items = {'program':([0,],[1,]),'expr':([0,5,7,8,9,12,15,16,17,18,19,20,21,22,42,43,46,53,61,],[2,24,25,26,27,30,33,34,35,36,37,38,39,40,24,49,51,55,62,]),'empty':([0,],[3,]),'assign':([0,],[4,]),'listofexpr':([5,42,],[23,48,]),'listofidentifiers':([54,58,],[57,60,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,22 +27,33 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> expr','program',1,'p_program','interpy.py',40),
-  ('program -> empty','program',1,'p_program','interpy.py',41),
-  ('program -> assign','program',1,'p_program','interpy.py',42),
-  ('empty -> <empty>','empty',0,'p_empty','interpy.py',46),
-  ('assign -> IDENTIFIER EQUALS expr','assign',3,'p_assign','interpy.py',50),
-  ('assign -> IDENTIFIER EQUALS IDENTIFIER','assign',3,'p_assign','interpy.py',51),
-  ('expr -> expr PLUS expr','expr',3,'p_expr','interpy.py',55),
-  ('expr -> expr MINUS expr','expr',3,'p_expr','interpy.py',56),
-  ('expr -> expr DIVIDE expr','expr',3,'p_expr','interpy.py',57),
-  ('expr -> expr TIMES expr','expr',3,'p_expr','interpy.py',58),
-  ('expr -> expr MOD expr','expr',3,'p_expr','interpy.py',59),
-  ('expr -> expr LT expr','expr',3,'p_expr','interpy.py',60),
-  ('expr -> expr GT expr','expr',3,'p_expr','interpy.py',61),
-  ('expr -> expr EQV expr','expr',3,'p_expr','interpy.py',62),
-  ('expr -> LPAREN expr RPAREN','expr',3,'p_expr_paren','interpy.py',66),
-  ('expr -> NUMBER','expr',1,'p_expr_number','interpy.py',70),
-  ('expr -> IDENTIFIER','expr',1,'p_expr_identifier','interpy.py',74),
-  ('expr -> PRINT expr','expr',2,'p_expr_print','interpy.py',78),
+  ('program -> expr','program',1,'p_program','interpy.py',53),
+  ('program -> empty','program',1,'p_program','interpy.py',54),
+  ('program -> assign','program',1,'p_program','interpy.py',55),
+  ('empty -> <empty>','empty',0,'p_empty','interpy.py',59),
+  ('assign -> LET IDENTIFIER EQUALS expr','assign',4,'p_assign','interpy.py',63),
+  ('assign -> LET IDENTIFIER EQUALS FXN LPAREN listofidentifiers RPAREN LBRACKET expr RBRACKET SEMICOLON','assign',11,'p_assign_function','interpy.py',67),
+  ('listofidentifiers -> IDENTIFIER COMMA listofidentifiers','listofidentifiers',3,'p_listofidentifiers','interpy.py',72),
+  ('listofidentifiers -> IDENTIFIER','listofidentifiers',1,'p_listofidentifiers','interpy.py',73),
+  ('listofexpr -> expr SEMICOLON listofexpr','listofexpr',3,'p_listofexpr','interpy.py',82),
+  ('listofexpr -> expr','listofexpr',1,'p_listofexpr','interpy.py',83),
+  ('expr -> USING listofexpr IN IDENTIFIER','expr',4,'p_using','interpy.py',93),
+  ('expr -> IF expr THEN expr ELSE expr','expr',6,'p_if_expression','interpy.py',112),
+  ('expr -> expr PLUS expr','expr',3,'p_expr','interpy.py',117),
+  ('expr -> expr MINUS expr','expr',3,'p_expr','interpy.py',118),
+  ('expr -> expr DIVIDE expr','expr',3,'p_expr','interpy.py',119),
+  ('expr -> expr TIMES expr','expr',3,'p_expr','interpy.py',120),
+  ('expr -> expr MOD expr','expr',3,'p_expr','interpy.py',121),
+  ('expr -> expr LT expr','expr',3,'p_expr','interpy.py',122),
+  ('expr -> expr GT expr','expr',3,'p_expr','interpy.py',123),
+  ('expr -> expr EQV expr','expr',3,'p_expr','interpy.py',124),
+  ('expr -> LPAREN expr RPAREN','expr',3,'p_expr_paren','interpy.py',128),
+  ('expr -> FLOAT','expr',1,'p_expr_float','interpy.py',132),
+  ('expr -> NUMBER','expr',1,'p_expr_number','interpy.py',136),
+  ('expr -> MINUS expr','expr',2,'p_expr_uminus','interpy.py',141),
+  ('expr -> PRINT STRING','expr',2,'p_expr_print','interpy.py',146),
+  ('expr -> PRINT IDENTIFIER','expr',2,'p_expr_print','interpy.py',147),
+  ('expr -> PRINT expr','expr',2,'p_expr_print','interpy.py',148),
+  ('expr -> IDENTIFIER','expr',1,'p_expr_identifier','interpy.py',152),
+  ('expr -> COMPARE NUMBER NUMBER NUMBER','expr',4,'p_expr_compare','interpy.py',156),
 ]
