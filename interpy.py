@@ -35,12 +35,12 @@ def t_IDENTIFIER(t):
     return t
 
 def t_FLOAT(t):
-    r'-?\d+\.\d+'
+    r'\d+\.\d+'
     t.value = float(t.value)
     return t
 
 def t_NUMBER(t):
-    r'-?\d+'
+    r'\d+'
     t.value = int(t.value)
     return t
 
@@ -136,6 +136,12 @@ def p_expr_number(p):
     '''expr : NUMBER'''
     p[0] = p[1]
 
+def p_expr_uminus(p):
+    '''
+    expr : MINUS expr %prec UMINUS
+    '''
+    p[0] = -p[2]
+
 def p_expr_print(p):
     '''expr : PRINT STRING'''
     p[0] = ('PRINT', p[2])
@@ -153,6 +159,7 @@ precedence = (
      ('nonassoc', 'LT', 'GT', 'EQV'),
      ('left', 'PLUS', 'MINUS'),
      ('left', 'TIMES', 'DIVIDE', 'MOD'),
+     ('right', 'UMINUS'),
  )
 
 env = {}
@@ -272,7 +279,7 @@ def main():
             tok = lexer.token()
             if not tok:
                 break
-            #print(tok)
+            print(tok)
         parser.parse(userIn)
 
 if __name__ == '__main__':
