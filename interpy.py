@@ -4,11 +4,11 @@ import itertools
 import ply.yacc as yacc
 import ply.lex as lex
 
-keywords = ['IF', 'THEN', 'ELSE', 'LET', 'PRINT']
+keywords = ['IF', 'THEN', 'ELSE', 'LET', 'PRINT', 'FXN', 'USING', 'IN']
 tokens = keywords + ['IDENTIFIER', 'NUMBER', 'PLUS', 'MINUS', 'TIMES',
           'DIVIDE', 'EQUALS', 'LPAREN', 'RPAREN',
           'ASSIGN', 'EQV', 'LT', 'GT', 'FLOAT' ,
-          'SEMICOLON', 'MOD']
+          'SEMICOLON', 'MOD', 'LBRACKET', 'RBRACKET', 'COMMA', 'STRING']
 
 t_ignore = r" "
 t_PLUS = r"\+"
@@ -23,6 +23,10 @@ t_LT = r"\<"
 t_GT = r"\>"
 t_SEMICOLON = r"\;"
 t_MOD = r"\%"
+t_COMMA = r","
+t_LBRACKET = r"\["
+t_RBRACKET = r"\]"
+t_STRING = r"\"\w*\""
 
 def t_IDENTIFIER(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
@@ -31,12 +35,12 @@ def t_IDENTIFIER(t):
     return t
 
 def t_FLOAT(t):
-    r'\d+\.\d+'
+    r'-?\d+\.\d+'
     t.value = float(t.value)
     return t
 
 def t_NUMBER(t):
-    r'\d+'
+    r'-?\d+'
     t.value = int(t.value)
     return t
 
@@ -56,8 +60,54 @@ def p_empty(p):
     p[0] = None
 
 def p_assign(p):
-    '''assign : IDENTIFIER EQUALS expr'''
-    p[0] = ('=', p[1], p[3])
+    '''assign : LET IDENTIFIER EQUALS expr'''
+    p[0] = ('=', p[2], p[4])
+
+def p_assign_function(p):
+    '''assign : LET IDENTIFIER EQUALS FXN LPAREN listofidentifiers RPAREN LBRACKET expr RBRACKET SEMICOLON'''
+    p[0] = ('FUNCTION', p[2], p[6], p[9])
+
+def p_listofidentifiers(p):
+    '''
+    listofidentifiers : IDENTIFIER COMMA listofidentifiers
+                      | IDENTIFIER
+    '''
+    if len(p) >= 3:
+        p[0] = ('LOI', p[1], p[3])
+    else:
+        p[0] = p[1]
+
+def p_listofexpr(p):
+    '''
+    listofexpr : expr SEMICOLON listofexpr
+               | expr
+    '''
+
+    if len(p) >= 3:
+        p[0] = ('LOE', p[1], p[3])
+    else:
+        p[0] = p[1]
+
+def p_using(p):
+    '''
+    expr : USING listofexpr IN IDENTIFIER
+    '''
+    expressions = []
+    #print(p[2])
+    #print(functionHelper(p[2]))
+
+    processedlist = functionHelper(p[2])
+    if type(processedlist) is tuple: #Then passing only one expression to function, so just process the expression
+        expressions = [run(processedlist)]
+    else: #Otherwise, have to go through each expression and process it, and add to the list of expression values.
+        for expression in functionHelper(p[2]): #evaluates the expressions given in the statement
+            expressions += [run(expression)]
+        #print(expression)
+        #print(run(expression))
+
+    p[0] = ('USING', expressions, p[4]) #Returns ('USING', values for function, function id)
+
+
 
 def p_expr(p):
     '''expr : expr PLUS expr
@@ -83,8 +133,8 @@ def p_expr_number(p):
     p[0] = p[1]
 
 def p_expr_print(p):
-    '''expr : PRINT expr'''
-    p[0] = p[2]
+    '''expr : PRINT STRING'''
+    p[0] = ('PRINT', p[2])
 
 def p_expr_identifier(p):
     '''expr : IDENTIFIER'''
@@ -95,45 +145,84 @@ def p_error(p):
     sys.stderr.write('Syntax Error')
 
 precedence = (
-     ('left', 'LT', 'GT', 'EQV'),
+     ('right', 'PRINT'),
+     ('nonassoc', 'LT', 'GT', 'EQV'),
      ('left', 'PLUS', 'MINUS'),
      ('left', 'TIMES', 'DIVIDE', 'MOD'),
-     ('left', 'LPAREN')
  )
 
 env = {}
 
-def run(p):
-    print(p)
-    global env
+def run(p, env=env):
+    #print(p)
+    #global env
     if type(p) is tuple:
         if p[0] is '+':
-            return run(p[1]) + run(p[2])
+            return run(p[1], env) + run(p[2], env)
         elif p[0] is '-':
-            return run(p[1]) - run(p[2])
+            return run(p[1], env) - run(p[2], env)
         elif p[0] is '/':
-            return run(p[1]) / run(p[2])
+            return run(p[1], env) / run(p[2], env)
         elif p[0] is '*':
-            return run(p[1]) * run(p[2])
+            return run(p[1], env) * run(p[2],env)
         elif p[0] is '%':
-            return run(p[1]) % run(p[2])
+            return run(p[1],env) % run(p[2],env)
         elif p[0] is '<':
-            return run(p[1]) < run(p[2])
+            return run(p[1],env) < run(p[2],env)
         elif p[0] is '>':
-            return run(p[1]) > run(p[2])
+            return run(p[1],env) > run(p[2],env)
         elif p[0] is '==':
-            return run(p[1]) is run(p[2])
+            return run(p[1],env) is run(p[2],env)
         elif p[0] is '=':
-            env[p[1]] = run(p[2])
-            print(env)
+            env[p[1]] = run(p[2],env)
+            #print(env)
         elif p[0] is 'IDENTIFIER':
             if p[1] not in env:
                 return "Undeclared Variable Found!"
             return env[p[1]]
+        elif p[0] is 'USING':
+            if p[2] not in env or type(env[p[2]]) is not tuple or env[p[2]][0] != 'READYFUNCTION':
+                 return "Function does not exist!"
+
+            function = env[p[2]]
+            if len(p[1]) != len(function[1]):
+                return "Invalid number of identifiers given for function!"
+
+            localenv = {}
+            listofvalues = p[1]
+            listofidentifiers = function[1]
+            for i in range(len(listofvalues)):
+                localenv[listofidentifiers[i]] = listofvalues[i]
+
+            return run(function[2], localenv)
+
+        elif p[0] is 'FUNCTION':
+            list = p[2]
+            expression = p[3]
+
+            list = functionHelper(list, id='LOI')
+
+            #"creates" a function with identifiers and the function's expression and binds it in the dictionary
+            env[p[1]] = ('READYFUNCTION', list, expression)
+
 
     else:
         return p
 # Code to get all input/exec values
+
+#Helps parse data in list of expression or list of identifiers
+def functionHelper(list, id='LOE'):
+    if len(list) != 1 and list[0] == id:
+        newlist = []
+        while list[0] == id:
+            newlist = newlist + [list[1]]
+            list = list[2]
+            if list[0] != id:
+                newlist = newlist + [list]
+        list = newlist
+    return list
+
+
 
 def getInput():
     for i in itertools.count():
